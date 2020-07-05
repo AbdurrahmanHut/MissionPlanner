@@ -18,6 +18,9 @@
    public class GMapPolygon : MapRoute, IDisposable
 #endif
    {
+      public bool isRunway = false;
+      public bool isCompetitionArea = false;
+
       private bool visible = true;
 
       /// <summary>
@@ -181,6 +184,18 @@
 
                      if(graphicsPath.PointCount > 1000)
                          Console.WriteLine("Large GP");
+
+                     if (isRunway)
+                     {
+                        Fill = new SolidBrush(Color.FromArgb(155, Color.Aquamarine));
+                        Stroke = new Pen(Color.FromArgb(155, Color.Black));
+
+                     }
+                     else if (isCompetitionArea)
+                     {
+                        Fill = new SolidBrush(Color.FromArgb(155, Color.AliceBlue));
+                        Stroke = new Pen(Color.FromArgb(155, Color.MidnightBlue));
+                     }
 
                      g.FillPath(Fill, graphicsPath);
                      g.DrawPath(Stroke, graphicsPath);

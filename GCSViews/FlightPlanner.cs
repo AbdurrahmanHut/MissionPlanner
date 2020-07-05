@@ -46,6 +46,7 @@ using Formatting = Newtonsoft.Json.Formatting;
 using ILog = log4net.ILog;
 using Placemark = SharpKml.Dom.Placemark;
 using Point = System.Drawing.Point;
+using Microsoft.VisualBasic;
 
 namespace MissionPlanner.GCSViews
 {
@@ -219,6 +220,8 @@ namespace MissionPlanner.GCSViews
             top.Markers.Add(center);
 
             MainMap.Zoom = 3;
+
+       
 
             CMB_altmode.DisplayMember = "Value";
             CMB_altmode.ValueMember = "Key";
@@ -7084,5 +7087,116 @@ Column 1: Field type (RALLY is the only one at the moment -- may have RALLY_LAND
             if (MainMap.Zoom < 17)
                 MainMap.Zoom = 17;
         }
+        // Define runway point list
+        double runwayPointLat;
+        double runwayPointLong;
+
+        private void btnAddRunwayPoints_Click(object sender, EventArgs e)
+        {
+            using (var form = new FormRunwayPoints())
+            {
+                var result = form.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    runwayPointLat = form.returnRunwayPointLat;
+                    runwayPointLong = form.returnRunwayPointLong;
+                    GMapOverlay borders = form.returnBorders;
+                    MainMap.Overlays.Add(borders);
+                }
+            }
+        }
+        public void createCircle(double latitude, double longtitude)
+        {
+            List<PointLatLng> targetPoints = new List<PointLatLng>();
+            PointLatLng point1 = new PointLatLng(latitude, (longtitude - 0.0000125));
+            PointLatLng point2 = new PointLatLng((latitude + 0.0000125), longtitude);
+            PointLatLng point3 = new PointLatLng(latitude, (longtitude + 0.0000125));
+            PointLatLng point4 = new PointLatLng((latitude - 0.0000125), longtitude);
+            targetPoints.Add(point1);
+            targetPoints.Add(point2);
+            targetPoints.Add(point3);
+            targetPoints.Add(point4);
+            GMapPolygon targetPolygon = new GMapPolygon(targetPoints, "TargetPolygon");
+            GMapOverlay targetBorders = new GMapOverlay("TargetOverlay");
+            targetBorders.Polygons.Add(targetPolygon);
+            GMapOverlay borders = targetBorders;
+            MainMap.Overlays.Add(borders);
+
+        }
+
+        double returnAreaPoint1Lat;
+        double returnAreaPoint1Long;
+        double returnAreaPoint2Lat;
+        double returnAreaPoint2Long;
+        double returnAreaPoint3Lat;
+        double returnAreaPoint3Long;
+        double returnAreaPoint4Lat;
+        double returnAreaPoint4Long;
+
+        private void btnCompArea_Click(object sender, EventArgs e)
+        {
+            using (var form = new FormBorderPoints())
+            {
+                var result = form.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    GMapOverlay areaBorders = form.returnAreaBorders;
+                    MainMap.Overlays.Add(areaBorders);
+                    //Get area border coordiantes
+                     returnAreaPoint1Lat = form.returnAreaPoint1Lat;
+                     returnAreaPoint1Long = form.returnAreaPoint1Long;
+                     returnAreaPoint2Lat = form.returnAreaPoint2Lat;
+                     returnAreaPoint2Long = form.returnAreaPoint2Long;
+                     returnAreaPoint3Lat = form.returnAreaPoint3Lat;
+                     returnAreaPoint3Long = form.returnAreaPoint3Long;
+                     returnAreaPoint4Lat = form.returnAreaPoint4Lat;
+                     returnAreaPoint4Long = form.returnAreaPoin4Long;
+                }
+            }
+        }
+
+        private void btnEnterTarget_Click(object sender, EventArgs e)
+        {
+            createCircle(40.9713038, 28.8418606);
+        }
+
+        public bool isTargetFound = false;
+        double i = 0;
+        private void btnTestFlight_Click(object sender, EventArgs e)
+        {
+            
+            AddCommand(MAVLink.MAV_CMD.TAKEOFF, 0, 0, 0, 0 ,runwayPointLong, runwayPointLat, 5);
+            AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint1Long, returnAreaPoint1Lat, 5);
+            AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint2Long, returnAreaPoint2Lat, 5);
+            AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint4Long, returnAreaPoint4Lat, 5);
+            while (i<= 0.00015)//Condition is i<= 0.00015 To test. In real condition it will be isTargetFound == false
+            {
+                //if Target no found change waypoints coordinates, by shifting 5m
+                i += 0.00005;
+                returnAreaPoint2Long += i;
+                returnAreaPoint4Long += i;
+                AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint2Long, returnAreaPoint2Lat, 5);
+                AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint4Long, returnAreaPoint4Lat, 5);
+                createCircle(40.9713038, 28.8418606);
+            }
+            AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint3Long, returnAreaPoint3Lat, 5);
+            AddCommand(MAVLink.MAV_CMD.LAND, 0, 0, 0, 0, runwayPointLong, runwayPointLat, 5);
+            //Target Found continue to 2.tour
+            //Coordinates below will change according to the targetPoint
+            //AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint3Long, returnAreaPoint3Lat, 5);
+            //AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, runwayPointLong, runwayPointLat, 5);
+            //AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint1Long, returnAreaPoint1Lat, 5);
+            //AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint2Long, returnAreaPoint2Lat, 5);
+            //AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint4Long, returnAreaPoint4Lat, 5);
+            //AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint3Long, returnAreaPoint3Lat, 5);
+            //AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, runwayPointLong, runwayPointLat, 5);
+            //AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint1Long, returnAreaPoint1Lat, 5);
+            //AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint2Long, returnAreaPoint2Lat, 5);
+            //AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint4Long, returnAreaPoint4Lat, 5);
+            //AddCommand(MAVLink.MAV_CMD.WAYPOINT, 0, 0, 0, 0, returnAreaPoint3Long, returnAreaPoint3Lat, 5);
+            //AddCommand(MAVLink.MAV_CMD.LAND, 0, 0, 0, 0, runwayPointLong, runwayPointLat, 5);
+
+        }
     }
+    
 }

@@ -513,6 +513,18 @@
       <DependentUpon>ConfigUserDefined.cs</DependentUpon>
     </Compile>
     <Compile Include="GCSViews\ConfigurationView\DeviceInfo.cs" />
+    <Compile Include="GCSViews\FormBorderPoints.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GCSViews\FormBorderPoints.Designer.cs">
+      <DependentUpon>FormBorderPoints.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GCSViews\FormRunwayPoints.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GCSViews\FormRunwayPoints.Designer.cs">
+      <DependentUpon>FormRunwayPoints.cs</DependentUpon>
+    </Compile>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Joystick\JoystickAxis.cs">
       <SubType>UserControl</SubType>
@@ -788,6 +800,12 @@
     <EmbeddedResource Include="GCSViews\ConfigurationView\ConfigUserDefined.resx">
       <DependentUpon>ConfigUserDefined.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="GCSViews\FormBorderPoints.resx">
+      <DependentUpon>FormBorderPoints.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GCSViews\FormRunwayPoints.resx">
+      <DependentUpon>FormRunwayPoints.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Joystick\JoystickAxis.resx" />
     <EmbeddedResource Include="Log\LogStrings.resx">
       <DependentUpon>LogStrings.cs</DependentUpon>
@@ -996,7 +1014,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Joystick\JoystickSetup.cs">
-      <SubType>Form</SubType>
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Joystick\Joy_Button_axis.cs">
       <SubType>Form</SubType>
